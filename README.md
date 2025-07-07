@@ -33,7 +33,7 @@ The main repository can be found here:
 https://github.com/mschimek/distributed_suffix_sorting/
 
 
-## Build and run our extended PSAC
+## Build and run (extended) PSAC
 
 To compile the algorithm, you can run:
 ```bash
@@ -51,7 +51,7 @@ Flick, Patrick and Srinivas Aluru. "Parallel distributed memory construction of 
 https://github.com/patflick/psac
 
 
-## Build and run our extended dPD
+## Build and run (extended) dPD
 
 To compile the algorithm, you can run:
 ```bash
