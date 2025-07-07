@@ -1,0 +1,11 @@
+target_sources(dss_base
+    PUBLIC
+        bingmann-lcp_losertree.hpp
+        char_container.hpp
+        lcp_type.hpp
+        merging.hpp
+        multikey_quicksort.hpp
+        radix_sort.hpp
+        string_set.hpp
+        string_ptr.hpp
+)

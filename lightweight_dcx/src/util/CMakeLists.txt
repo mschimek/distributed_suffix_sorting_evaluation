@@ -1,0 +1,11 @@
+target_sources(dss_base
+    PUBLIC
+        division.hpp
+        macros.hpp
+        memory.hpp
+        memory_monitor.hpp
+        printing.hpp
+        random.hpp
+        string_util.hpp
+        uint_types.hpp
+)

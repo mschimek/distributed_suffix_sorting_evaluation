@@ -1,0 +1,82 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: "ghcr.io/kamping-site/kamping-ci:2024.2"
+    continue-on-error: true
+    strategy:
+      matrix:
+        compiler:
+          - { name: Clang, cc: clang, cxx: clang++}
+          - { name: GNU, cc: gcc, cxx: g++}
+        build-mode: [Debug, Release]
+        # Exception mode has no influence on how tests are run. This only affects the examples.
+        exception-mode: [ON]
+        assertion-level: ["heavy"]
+        run-tests: [OFF]
+        include:
+          - compiler: { name: GNU, cc: gcc, cxx: g++}
+            build-mode: Debug
+            # Exception mode has no influence on how tests are run. This only affects the examples.
+            exception-mode: OFF
+            # Assertion level is ignored in KASSERT-Tests. This is to ensure that other tests don't rely on side effects in assertions.
+            assertion-level: "none"
+            run-tests: ON
+          - compiler: { name: GNU, cc: gcc, cxx: g++}
+            build-mode: Debug
+            # Exception mode has no influence on how tests are run. This only affects the examples.
+            exception-mode: ON
+            assertion-level: "heavy"
+            run-tests: ON
+          - compiler: { name: Clang, cc: clang, cxx: clang++}
+            build-mode: Release
+            # Exception mode has no influence on how tests are run. This only affects the examples.
+            exception-mode: ON
+            assertion-level: "heavy"
+            run-tests: ON
+        exclude:
+          - compiler: { name: GNU, cc: gcc, cxx: g++}
+            build-mode: Debug
+            exception-mode: ON
+            assertion-level: "heavy"
+            run-tests: OFF
+          - compiler: { name: Clang, cc: clang, cxx: clang++}
+            build-mode: Release
+            exception-mode: ON
+            assertion-level: "heavy"
+            run-tests: OFF
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+      with:
+        submodules: 'recursive'
+    - name: export-compiler
+      run: |
+        echo CXX=${{ matrix.compiler.cxx }} >> $GITHUB_ENV
+        echo CC=${{ matrix.compiler.cc }} >> $GITHUB_ENV
+        echo OMPI_CXX=${{ matrix.compiler.cxx }} >> $GITHUB_ENV
+        echo OMPI_CC=${{ matrix.compiler.cc }} >> $GITHUB_ENV
+    - name: print-mpirun-version
+      run: mpirun --version
+    - name: print-mpicxx-flags
+      run: mpicxx -show
+    - name: cmake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build-mode }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cxx }} -DCMAKE_C_COMPILER=${{ matrix.compiler.cc }} -DKAMPING_WARNINGS_ARE_ERRORS=ON -DKAMPING_EXCEPTION_MODE=${{ matrix.exception-mode }} -DKAMPING_ASSERTION_LEVEL=${{ matrix.assertion-level }} -DKAMPING_TESTS_DISCOVER=OFF -DKAMPING_TEST_ENABLE_SANITIZERS=ON -DKAMPING_TEST_TIMEOUT=40
+    - name: build
+      run: cmake --build build/ --parallel 16
+    - name: Allow-running-mpi
+      run: |
+        echo OMPI_ALLOW_RUN_AS_ROOT=1 >> $GITHUB_ENV
+        echo OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 >> $GITHUB_ENV
+    - name: run tests
+      if: matrix.run-tests == 'ON'
+      run: make -C build/ check

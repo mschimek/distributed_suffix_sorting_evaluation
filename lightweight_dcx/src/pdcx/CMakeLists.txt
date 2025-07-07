@@ -1,0 +1,13 @@
+target_sources(dss_base
+    PUBLIC
+        pdcx.hpp
+        packing.hpp
+        difference_cover.hpp
+        sample_string.hpp
+        compute_ranks.hpp
+        merge_samples.hpp
+        redistribute.hpp
+        space_efficient_sort.hpp
+        statistics.hpp
+        sequential_sa.hpp
+)
