@@ -5,6 +5,7 @@
 #
 # All rights reserved. Published under the BSD-2 license in the LICENSE file.
 ################################################################################
+# This file has been modified by Matthias Schimek, 2025
 
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/misc/cmake")
